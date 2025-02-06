@@ -21,6 +21,7 @@
   "homepage": "https://github.com/MrJAO/Jupcatdemy#readme",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
     "dotenv": "^16.4.7",
     "next": "^15.1.6",
     "react": "^19.0.0",
