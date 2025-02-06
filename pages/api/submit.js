@@ -1,10 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
 
-// Load environment variables from .env.local
-dotenv.config();
-
-// Initialize Supabase client using environment variables
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -17,14 +12,21 @@ export default async function handler(req, res) {
 
   const { username, taskType, submissionData } = req.body;
 
-  // Insert the data into Supabase
-  const { data, error } = await supabase
-    .from('quest_submissions')
-    .insert([{ username, task_type: taskType, submission_data: submissionData, status: false }]);
+  console.log("Received body:", req.body); // Log the request body
+  console.log("Supabase URL:", process.env.SUPABASE_URL); // Log environment variables
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
+  try {
+    const { data, error } = await supabase
+      .from('quest_submissions')
+      .insert([{ username, task_type: taskType, submission_data: submissionData, status: false }]);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    res.status(200).json({ message: 'Submission received', data });
+  } catch (error) {
+    console.error("Error occurred:", error); // Log the error
+    res.status(500).json({ error: error.message });
   }
-
-  res.status(200).json({ message: 'Submission received', data });
 }
