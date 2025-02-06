@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "pages/api/submit.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "env": {
+    "VERCEL_USE_NPM": "true"
+  }
+}

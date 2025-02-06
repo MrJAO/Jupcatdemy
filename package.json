@@ -1,0 +1,29 @@
+{
+  "name": "jupcatdemy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo 'No build step required'",
+    "dev": "next dev",
+    "start": "vercel dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrJAO/Jupcatdemy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrJAO/Jupcatdemy/issues"
+  },
+  "homepage": "https://github.com/MrJAO/Jupcatdemy#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
