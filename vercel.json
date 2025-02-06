@@ -6,7 +6,10 @@
       "use": "@vercel/node"
     }
   ],
-  "env": {
-    "VERCEL_USE_NPM": "true"
-  }
+  "routes": [
+    {
+      "src": "/api/submit",
+      "dest": "/pages/api/submit.js"
+    }
+  ]
 }
