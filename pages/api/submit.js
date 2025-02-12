@@ -99,6 +99,8 @@ export default async function handler(req, res) {
           username,
           submission_data: submissionData, // ✅ Stores everything in JSON
           user_status,
+          twitter_username,
+          discord_username,
           status: false, // Default as pending
           submitted_at: new Date(),
         }
