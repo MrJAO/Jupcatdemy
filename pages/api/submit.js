@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import Cors from 'cors';
 
-// ✅ Initialize CORS middleware (since it was working before)
+// ✅ Initialize CORS middleware
 const cors = Cors({
   methods: ['GET', 'POST', 'OPTIONS'],
-  origin: 'https://jupcatdemy.com', // Allow only your frontend domain
+  origin: 'https://jupcatdemy.com',
 });
 
 const supabase = createClient(
@@ -25,10 +25,10 @@ function runMiddleware(req, res, fn) {
 }
 
 export default async function handler(req, res) {
-  await runMiddleware(req, res, cors); // ✅ Run CORS middleware
+  await runMiddleware(req, res, cors);
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end(); // ✅ Handle CORS preflight requests
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -37,8 +37,9 @@ export default async function handler(req, res) {
 
   const { username, questTypeId, submissionData } = req.body;
 
-  const user_status = submissionData?.user_status; // ✅ Extract user status
-  const twitter_username = submissionData?.twitter || null; // ✅ Extract Twitter username
+  // ✅ Extract user fields from submissionData
+  const user_status = submissionData?.user_status;
+  const twitter_username = submissionData?.twitter || null; // Ensure it's defined
 
   // 🛑 Validate required fields before inserting
   if (!username || !questTypeId || !submissionData || !user_status) {
@@ -46,13 +47,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 🔍 **Check if the user has already submitted this quest**
+    // 🔍 **Check if the user has already completed this quest**
     const { data: existingQuest, error: checkError } = await supabase
       .from('accepted_quests')
       .select('id')
       .eq('username', username)
       .eq('quest_type_id', questTypeId)
-      .maybeSingle(); // ✅ Improved error handling
+      .maybeSingle();
 
     if (checkError) {
       throw new Error(`Supabase Check Error: ${checkError.message}`);
@@ -78,18 +79,17 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "You have already submitted this quest and it's pending approval." });
     }
 
-    // ✅ **Insert into pending_submissions**
+    // ✅ **Insert into pending_submissions (without twitter_username as a separate field)**
     const { data, error } = await supabase
       .from('pending_submissions')
       .insert([
         {
           username,
-          quest_type_id: questTypeId, // ✅ Ensure correct field name
-          submission_data: submissionData,
-          user_status, // ✅ Extracted correctly
-          twitter_username, // ✅ Ensure Twitter username is inserted
+          quest_type_id: questTypeId,
+          submission_data: submissionData, // ✅ Twitter username is already inside this JSON field
+          user_status,
           status: false, // Default as pending
-          submitted_at: new Date(), // ✅ Timestamp
+          submitted_at: new Date(),
         }
       ]);
 
