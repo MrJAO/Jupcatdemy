@@ -1,34 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
-import Cors from 'cors';
-
-// Initialize CORS middleware
-const cors = Cors({
-  methods: ['GET', 'POST', 'OPTIONS'],
-  origin: 'https://jupcatdemy.com', // Allow only your frontend domain
-});
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// Helper function to run CORS middleware
-function runMiddleware(req, res, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      return resolve(result);
-    });
-  });
-}
-
 export default async function handler(req, res) {
-  await runMiddleware(req, res, cors);
+  // ✅ Set CORS Headers manually
+  res.setHeader("Access-Control-Allow-Origin", "https://jupcatdemy.com");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end(); // ✅ Handle CORS preflight requests
+    return res.status(200).end(); // ✅ Handle CORS preflight request
   }
 
   if (req.method !== 'POST') {
@@ -37,12 +21,7 @@ export default async function handler(req, res) {
 
   const { username, questTypeId, submissionData } = req.body;
 
-  // ✅ Extract user_status from submissionData
-  const user_status = submissionData?.user_status;
-
-  // ✅ Debugging logs (REMOVE later in production)
-  console.log("Received body:", req.body);
-  console.log("Supabase URL:", process.env.SUPABASE_URL);
+  const user_status = submissionData?.user_status; // ✅ Extract user status
 
   // 🛑 Validate required fields before inserting
   if (!username || !questTypeId || !submissionData || !user_status) {
@@ -56,13 +35,12 @@ export default async function handler(req, res) {
       .select('id')
       .eq('username', username)
       .eq('quest_type_id', questTypeId)
-      .single(); // Get only one row if it exists
+      .maybeSingle(); // ✅ Better way to handle single row check
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      throw new Error(checkError.message);
+    if (checkError) {
+      throw new Error(`Supabase Check Error: ${checkError.message}`);
     }
 
-    // 🛑 If the user already completed the quest, reject the submission
     if (existingQuest) {
       return res.status(400).json({ error: "This username has already completed this quest." });
     }
@@ -77,17 +55,17 @@ export default async function handler(req, res) {
           submission_data: submissionData,
           user_status, // ✅ Extracted correctly
           status: false, // Default as pending
-          submitted_at: new Date(), // Timestamp
+          submitted_at: new Date(), // ✅ Timestamp
         }
       ]);
 
     if (error) {
-      throw new Error(error.message);
+      throw new Error(`Supabase Insert Error: ${error.message}`);
     }
 
-    res.status(200).json({ message: 'Submission received!', data });
+    res.status(200).json({ message: '✅ Submission received!', data });
   } catch (error) {
-    console.error("Error occurred:", error);
+    console.error("❌ Error occurred:", error);
     res.status(500).json({ error: error.message });
   }
 }
