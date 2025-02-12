@@ -71,12 +71,12 @@ export default async function handler(req, res) {
 
     // 🔍 **Check if the user has already completed this quest**
     const { data: existingQuest, error: checkError } = await supabase
-      .from('accepted_quests')
+      .from('accepted_quest_types')
       .select('id')
       .or(
         `discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`
       )
-      .eq('quest_type_id', questTypeId)
+      .eq('quest_types', questTypeId)
       .maybeSingle();
 
     if (checkError) {
