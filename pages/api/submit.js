@@ -37,9 +37,9 @@ export default async function handler(req, res) {
 
   const { quest_types, submissionData } = req.body;
 
-  // ✅ Extract user fields from submissionData
-  const discord_username = submissionData?.discord || null;
-  const twitter_username = submissionData?.twitter || null;
+  // ✅ Updated extraction to match frontend data
+  const discord_username = submissionData?.discord_username || null;
+  const twitter_username = submissionData?.twitter_username || null;
   const user_status = submissionData?.user_status || null;
   const short_answer = submissionData?.short_answer || null;
   const submission_link = submissionData?.submission_link || null;
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
   // 🛑 Validate required fields before inserting
   if (
-    (quest_types === 3 && (!discord_username || !twitter_username)) ||  // Onboarding requires both
+    (quest_types === 3 && (!discord_username || !twitter_username || !user_status)) ||  // Onboarding requires all 3 fields
     (quest_types === 1 && !discord_username) ||  // Discord quests require Discord username
     (quest_types === 2 && !twitter_username)    // Twitter quests require Twitter username
   ) {
