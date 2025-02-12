@@ -69,14 +69,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid quest type" });
     }
 
-    // 🔍 **Check if the user has already completed this quest**
+    console.log(`🔍 Inserting into table: ${pendingTable}`);
+
+    // 🔍 **Check if the user has already completed this quest in accepted quests**
     const { data: existingQuest, error: checkError } = await supabase
-      .from('accepted_quests')
+      .from(pendingTable)  // ✅ Now checking in the correct pending table
       .select('id')
       .or(
         `discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`
       )
-      .eq('quest_type_id', quest_types)
       .maybeSingle();
 
     if (checkError) {
@@ -84,23 +85,6 @@ export default async function handler(req, res) {
     }
 
     if (existingQuest) {
-      return res.status(400).json({ error: "You have already completed this quest." });
-    }
-
-    // ✅ **Check if the user already has a pending submission**
-    const { data: pendingQuest, error: pendingError } = await supabase
-      .from(pendingTable)
-      .select('id')
-      .or(
-        `discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`
-      )
-      .maybeSingle();
-
-    if (pendingError) {
-      throw new Error(`Supabase Pending Check Error: ${pendingError.message}`);
-    }
-
-    if (pendingQuest) {
       return res.status(400).json({ error: "You have already submitted this quest and it's pending approval." });
     }
 
