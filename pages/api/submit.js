@@ -27,13 +27,20 @@ function runMiddleware(req, res, fn) {
 export default async function handler(req, res) {
   await runMiddleware(req, res, cors);
 
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end(); // ✅ Handle CORS preflight requests
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { username, questTypeId, submissionData, user_status } = req.body;
+  const { username, questTypeId, submissionData } = req.body;
 
-  // ✅ Debugging logs (REMOVE this later in production)
+  // ✅ Extract user_status from submissionData
+  const user_status = submissionData?.user_status;
+
+  // ✅ Debugging logs (REMOVE later in production)
   console.log("Received body:", req.body);
   console.log("Supabase URL:", process.env.SUPABASE_URL);
 
@@ -49,11 +56,11 @@ export default async function handler(req, res) {
       .insert([
         {
           username,
-          quest_type_id: questTypeId,  // 🔹 Ensure correct ID
+          quest_type_id: questTypeId, // ✅ Ensure correct field name
           submission_data: submissionData,
-          user_status,  // 🔹 Store New/Existing Cat status
-          status: false,  // Default as pending
-          submitted_at: new Date(),  // Timestamp
+          user_status, // ✅ Extracted correctly
+          status: false, // Default as pending
+          submitted_at: new Date(), // Timestamp
         }
       ]);
 
