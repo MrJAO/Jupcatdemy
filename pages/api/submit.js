@@ -38,6 +38,7 @@ export default async function handler(req, res) {
   const { username, questTypeId, submissionData } = req.body;
 
   const user_status = submissionData?.user_status; // ✅ Extract user status
+  const twitter_username = submissionData?.twitter || null; // ✅ Extract Twitter username
 
   // 🛑 Validate required fields before inserting
   if (!username || !questTypeId || !submissionData || !user_status) {
@@ -86,6 +87,7 @@ export default async function handler(req, res) {
           quest_type_id: questTypeId, // ✅ Ensure correct field name
           submission_data: submissionData,
           user_status, // ✅ Extracted correctly
+          twitter_username, // ✅ Ensure Twitter username is inserted
           status: false, // Default as pending
           submitted_at: new Date(), // ✅ Timestamp
         }
