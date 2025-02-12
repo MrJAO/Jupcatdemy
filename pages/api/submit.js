@@ -39,7 +39,8 @@ export default async function handler(req, res) {
 
   // ✅ Extract user fields from submissionData
   const user_status = submissionData?.user_status;
-  const twitter_username = submissionData?.twitter || null; // Ensure it's defined
+  const twitter_username = submissionData?.twitter || null;
+  const discord_username = submissionData?.discord || null;
 
   // 🛑 Validate required fields before inserting
   if (!username || !questTypeId || !submissionData || !user_status) {
@@ -47,6 +48,18 @@ export default async function handler(req, res) {
   }
 
   try {
+    // ✅ Determine the correct table based on questTypeId
+    let pendingTable = "";
+    if (questTypeId === "onboarding") {
+      pendingTable = "onboarding_pending_submissions";
+    } else if (questTypeId === "discord") {
+      pendingTable = "discord_pending_submissions";
+    } else if (questTypeId === "twitter") {
+      pendingTable = "twitter_pending_submissions";
+    } else {
+      return res.status(400).json({ error: "Invalid quest type" });
+    }
+
     // 🔍 **Check if the user has already completed this quest**
     const { data: existingQuest, error: checkError } = await supabase
       .from('accepted_quests')
@@ -65,10 +78,9 @@ export default async function handler(req, res) {
 
     // ✅ **Check if the user already has a pending submission**
     const { data: pendingQuest, error: pendingError } = await supabase
-      .from('pending_submissions')
+      .from(pendingTable)
       .select('id')
       .eq('username', username)
-      .eq('quest_type_id', questTypeId)
       .maybeSingle();
 
     if (pendingError) {
@@ -79,14 +91,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "You have already submitted this quest and it's pending approval." });
     }
 
-    // ✅ **Insert into pending_submissions (without twitter_username as a separate field)**
+    // ✅ **Insert into the correct pending_submissions table**
     const { data, error } = await supabase
-      .from('pending_submissions')
+      .from(pendingTable)
       .insert([
         {
           username,
-          quest_type_id: questTypeId,
-          submission_data: submissionData, // ✅ Twitter username is already inside this JSON field
+          submission_data: submissionData, // ✅ Stores everything in JSON
           user_status,
           status: false, // Default as pending
           submitted_at: new Date(),
