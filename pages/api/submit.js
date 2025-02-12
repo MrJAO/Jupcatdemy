@@ -50,7 +50,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Insert into pending_submissions
+    // 🔍 Check if the user has already completed this quest
+    const { data: existingQuest, error: checkError } = await supabase
+      .from('accepted_quests')
+      .select('id')
+      .eq('username', username)
+      .eq('quest_type_id', questTypeId)
+      .single(); // Get only one row if it exists
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw new Error(checkError.message);
+    }
+
+    // 🛑 If the user already completed the quest, reject the submission
+    if (existingQuest) {
+      return res.status(400).json({ error: "This username has already completed this quest." });
+    }
+
+    // ✅ Insert into pending_submissions
     const { data, error } = await supabase
       .from('pending_submissions')
       .insert([
