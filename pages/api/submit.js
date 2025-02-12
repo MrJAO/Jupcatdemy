@@ -31,14 +31,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { username, questTypeId, submissionData } = req.body;
+  const { username, questTypeId, submissionData, user_status } = req.body;
 
   // ✅ Debugging logs (REMOVE this later in production)
   console.log("Received body:", req.body);
   console.log("Supabase URL:", process.env.SUPABASE_URL);
 
   // 🛑 Validate required fields before inserting
-  if (!username || !questTypeId || !submissionData) {
+  if (!username || !questTypeId || !submissionData || !user_status) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -51,6 +51,7 @@ export default async function handler(req, res) {
           username,
           quest_type_id: questTypeId,  // 🔹 Ensure correct ID
           submission_data: submissionData,
+          user_status,  // 🔹 Store New/Existing Cat status
           status: false,  // Default as pending
           submitted_at: new Date(),  // Timestamp
         }
