@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { questTypeId, submissionData } = req.body;
+  const { quest_types, submissionData } = req.body;
 
   // ✅ Extract user fields from submissionData
   const discord_username = submissionData?.discord || null;
@@ -49,21 +49,21 @@ export default async function handler(req, res) {
 
   // 🛑 Validate required fields before inserting
   if (
-    (questTypeId === 3 && (!discord_username || !twitter_username)) ||  // Onboarding requires both
-    (questTypeId === 1 && !discord_username) ||  // Discord quests require Discord username
-    (questTypeId === 2 && !twitter_username)    // Twitter quests require Twitter username
+    (quest_types === 3 && (!discord_username || !twitter_username)) ||  // Onboarding requires both
+    (quest_types === 1 && !discord_username) ||  // Discord quests require Discord username
+    (quest_types === 2 && !twitter_username)    // Twitter quests require Twitter username
   ) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    // ✅ Determine the correct table based on questTypeId
+    // ✅ Determine the correct table based on quest_types
     let pendingTable = "";
-    if (questTypeId === 3) {
+    if (quest_types === 3) {
       pendingTable = "onboarding_pending_submissions";
-    } else if (questTypeId === 1) {
+    } else if (quest_types === 1) {
       pendingTable = "discord_pending_submissions";
-    } else if (questTypeId === 2) {
+    } else if (quest_types === 2) {
       pendingTable = "twitter_pending_submissions";
     } else {
       return res.status(400).json({ error: "Invalid quest type" });
@@ -71,12 +71,12 @@ export default async function handler(req, res) {
 
     // 🔍 **Check if the user has already completed this quest**
     const { data: existingQuest, error: checkError } = await supabase
-      .from('accepted_quest_types')
+      .from('accepted_quests')
       .select('id')
       .or(
         `discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`
       )
-      .eq('quest_types', questTypeId)
+      .eq('quest_type_id', quest_types)
       .maybeSingle();
 
     if (checkError) {
