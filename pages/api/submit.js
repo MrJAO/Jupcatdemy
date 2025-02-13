@@ -36,14 +36,20 @@ export default async function handler(req, res) {
   }
 
   console.log("📥 Received Data:", req.body);
-  const { quest_types, submissionData } = req.body;
+  const { quest_id, quest_types, submissionData } = req.body; // ✅ Extract quest_id correctly
 
-  // ✅ Updated extraction to match frontend data
-@@ -47,69 +48,81 @@
+  // ✅ Extract required fields
+  const discord_username = submissionData?.discord_username || null;
+  const twitter_username = submissionData?.twitter_username || null;
+  const user_status = submissionData?.user_status || null;
+  const short_answer = submissionData?.short_answer || null;
+  const submission_link = submissionData?.submission_link || null;
+  const tweet_post_link = submissionData?.tweet_post_link || null;
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
 
   console.log("🔹 Extracted Data:", {
+    quest_id,
     quest_types,
     discord_username,
     twitter_username,
@@ -54,8 +60,10 @@ export default async function handler(req, res) {
     reply_submission_link,
     retweet_submission_link
   });
+
   // 🛑 Validate required fields before inserting
   if (
+    !quest_id || // ✅ Ensure quest_id is always present
     (quest_types === 3 && (!discord_username || !twitter_username || !user_status)) ||  // Onboarding requires all 3 fields
     (quest_types === 1 && !discord_username) ||  // Discord quests require Discord username
     (quest_types === 2 && !twitter_username)    // Twitter quests require Twitter username
@@ -78,16 +86,17 @@ export default async function handler(req, res) {
 
     console.log(`🔍 Inserting into table: ${pendingTable}`);
 
-    // 🔍 **Check if the user has already completed this quest in accepted quests**
-    let checkQuery = supabase.from(pendingTable).select('id');
+    // 🔍 **Check if the user has already completed this specific quest**
+    let checkQuery = supabase.from(pendingTable).select('id').eq('quest_id', quest_id);
 
-    // ✅ Dynamically check only relevant fields
+    // ✅ Dynamically check based on the quest type and username
     if (quest_types === 1 && discord_username) {
       checkQuery = checkQuery.eq('discord_username', discord_username);
     } else if (quest_types === 2 && twitter_username) {
       checkQuery = checkQuery.eq('twitter_username', twitter_username);
     } else if (quest_types === 3 && discord_username && twitter_username) {
-      checkQuery = checkQuery.or(`discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`);
+      checkQuery = checkQuery
+        .or(`discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`);
     }
 
     const { data: existingQuest, error: checkError } = await checkQuery.maybeSingle();
@@ -110,6 +119,7 @@ export default async function handler(req, res) {
       tweet_post_link,
       reply_submission_link,
       retweet_submission_link,
+      quest_id, // ✅ Include quest_id
       status: false, // Default as pending
       submitted_at: new Date(),
     };
@@ -120,3 +130,16 @@ export default async function handler(req, res) {
     );
 
     const { data, error } = await supabase
+      .from(pendingTable)
+      .insert([submissionPayload]);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    res.status(200).json({ message: '✅ Submission received!', data });
+  } catch (error) {
+    console.error("❌ Error occurred:", error);
+    res.status(500).json({ error: error.message });
+  }
+}
