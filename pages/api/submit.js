@@ -1,38 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
-import Cors from 'cors';
-
-// ✅ Initialize CORS middleware
-const cors = Cors({
-  methods: ['GET', 'POST', 'OPTIONS'],
-  origin: 'https://jupcatdemy.com',
-});
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// ✅ Helper function to run CORS middleware
-function runMiddleware(req, res, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      return resolve(result);
-    });
-  });
-}
-
 export default async function handler(req, res) {
-  // ✅ Run CORS middleware
-  await runMiddleware(req, res, cors);
+  // ✅ Explicitly set CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "https://jupcatdemy.com");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   // ✅ Handle OPTIONS preflight request
   if (req.method === 'OPTIONS') {
-    res.setHeader("Access-Control-Allow-Origin", "https://jupcatdemy.com");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     return res.status(200).end();
   }
 
@@ -52,7 +32,7 @@ export default async function handler(req, res) {
   const tweet_post_link = submissionData?.tweet_post_link || null;
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
-  const quest_id = submissionData?.quest_id || null; // ✅ Ensure quest_id is included
+  const quest_id = submissionData?.quest_id || null;
 
   console.log("🔹 Extracted Data:", {
     quest_id,
@@ -69,10 +49,10 @@ export default async function handler(req, res) {
 
   // 🛑 Validate required fields before inserting
   if (
-    !quest_id || // ✅ Ensure quest_id is always present
-    (quest_types === 3 && (!discord_username || !twitter_username || !user_status)) ||  // Onboarding requires all 3 fields
-    (quest_types === 1 && !discord_username) ||  // Discord quests require Discord username
-    (quest_types === 2 && !twitter_username)    // Twitter quests require Twitter username
+    !quest_id || 
+    (quest_types === 3 && (!discord_username || !twitter_username || !user_status)) || 
+    (quest_types === 1 && !discord_username) ||  
+    (quest_types === 2 && !twitter_username)    
   ) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -124,8 +104,8 @@ export default async function handler(req, res) {
       tweet_post_link,
       reply_submission_link,
       retweet_submission_link,
-      quest_id, // ✅ Include quest_id
-      status: false, // Default as pending
+      quest_id,
+      status: false, 
       submitted_at: new Date(),
     };
 
