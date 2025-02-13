@@ -9,7 +9,7 @@
   "routes": [
     {
       "src": "/api/submit",
-      "dest": "/api/submit.js"
+      "dest": "/pages/api/submit.js"
     }
   ]
 }
