@@ -4,12 +4,15 @@ import Cors from 'cors';
 // ✅ Initialize CORS middleware
 const cors = Cors({
   methods: ['GET', 'POST', 'OPTIONS'],
-  origin: 'https://jupcatdemy.com',
+  origin: ['https://jupcatdemy.com'], // Allow only your website
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 });
 
+// ✅ Supabase client with service role key (for server-side operations)
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY // More permissions than anon key
 );
 
 // ✅ Helper function to run CORS middleware
@@ -25,9 +28,14 @@ function runMiddleware(req, res, fn) {
 }
 
 export default async function handler(req, res) {
+  // ✅ Apply CORS middleware
   await runMiddleware(req, res, cors);
 
+  // ✅ Handle preflight requests for CORS
   if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', 'https://jupcatdemy.com');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     return res.status(200).end();
   }
 
@@ -36,7 +44,7 @@ export default async function handler(req, res) {
   }
 
   console.log("📥 Received Data:", req.body);
-  const { quest_id, quest_types, submissionData } = req.body; // ✅ Extract quest_id correctly
+  const { quest_id, quest_types, submissionData } = req.body;
 
   // ✅ Extract required fields
   const discord_username = submissionData?.discord_username || null;
@@ -137,6 +145,7 @@ export default async function handler(req, res) {
       throw new Error(error.message);
     }
 
+    res.setHeader('Access-Control-Allow-Origin', 'https://jupcatdemy.com');
     res.status(200).json({ message: '✅ Submission received!', data });
   } catch (error) {
     console.error("❌ Error occurred:", error);
