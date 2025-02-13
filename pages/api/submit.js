@@ -25,9 +25,14 @@ function runMiddleware(req, res, fn) {
 }
 
 export default async function handler(req, res) {
+  // ✅ Run CORS middleware
   await runMiddleware(req, res, cors);
 
+  // ✅ Handle OPTIONS preflight request
   if (req.method === 'OPTIONS') {
+    res.setHeader("Access-Control-Allow-Origin", "https://jupcatdemy.com");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     return res.status(200).end();
   }
 
@@ -37,30 +42,28 @@ export default async function handler(req, res) {
 
   console.log("📥 Received Data:", req.body);
   const { quest_types, submissionData } = req.body;
-  const { quest_id, quest_types, submissionData } = req.body; // ✅ Extract quest_id correctly
 
   // ✅ Extract required fields including quest_id
-  // ✅ Extract required fields
   const discord_username = submissionData?.discord_username || null;
   const twitter_username = submissionData?.twitter_username || null;
   const user_status = submissionData?.user_status || null;
-@@ -47,9 +47,9 @@
+  const short_answer = submissionData?.short_answer || null;
+  const submission_link = submissionData?.submission_link || null;
   const tweet_post_link = submissionData?.tweet_post_link || null;
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
-  const quest_id = submissionData?.quest_id || null; // ✅ Added quest_id
+  const quest_id = submissionData?.quest_id || null; // ✅ Ensure quest_id is included
 
   console.log("🔹 Extracted Data:", {
     quest_id,
     quest_types,
     discord_username,
     twitter_username,
-@@ -58,89 +58,88 @@
+    user_status,
+    short_answer,
     submission_link,
     tweet_post_link,
     reply_submission_link,
-    retweet_submission_link,
-    quest_id
     retweet_submission_link
   });
 
@@ -89,17 +92,16 @@ export default async function handler(req, res) {
 
     console.log(`🔍 Inserting into table: ${pendingTable}`);
 
-    // 🔍 **Check if the user has already completed this specific quest**
+    // 🔍 **Check if the user has already submitted this quest**
     let checkQuery = supabase.from(pendingTable).select('id').eq('quest_id', quest_id);
 
-    // ✅ Dynamically check based on the quest type and username
+    // ✅ Check dynamically based on quest type and username
     if (quest_types === 1 && discord_username) {
       checkQuery = checkQuery.eq('discord_username', discord_username);
     } else if (quest_types === 2 && twitter_username) {
       checkQuery = checkQuery.eq('twitter_username', twitter_username);
     } else if (quest_types === 3 && discord_username && twitter_username) {
-      checkQuery = checkQuery
-        .or(`discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`);
+      checkQuery = checkQuery.or(`discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`);
     }
 
     const { data: existingQuest, error: checkError } = await checkQuery.maybeSingle();
