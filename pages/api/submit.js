@@ -4,15 +4,12 @@ import Cors from 'cors';
 // ✅ Initialize CORS middleware
 const cors = Cors({
   methods: ['GET', 'POST', 'OPTIONS'],
-  origin: ['https://jupcatdemy.com'], // Allow only your website
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  origin: 'https://jupcatdemy.com',
 });
 
-// ✅ Supabase client with service role key (for server-side operations)
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // More permissions than anon key
+  process.env.SUPABASE_ANON_KEY
 );
 
 // ✅ Helper function to run CORS middleware
@@ -28,14 +25,9 @@ function runMiddleware(req, res, fn) {
 }
 
 export default async function handler(req, res) {
-  // ✅ Apply CORS middleware
   await runMiddleware(req, res, cors);
 
-  // ✅ Handle preflight requests for CORS
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', 'https://jupcatdemy.com');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     return res.status(200).end();
   }
 
@@ -43,10 +35,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  console.log("📥 Received Data:", req.body);
-  const { quest_id, quest_types, submissionData } = req.body;
+  const { quest_types, submissionData } = req.body;
 
-  // ✅ Extract required fields
+  // ✅ Updated extraction to match frontend data
   const discord_username = submissionData?.discord_username || null;
   const twitter_username = submissionData?.twitter_username || null;
   const user_status = submissionData?.user_status || null;
@@ -56,22 +47,8 @@ export default async function handler(req, res) {
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
 
-  console.log("🔹 Extracted Data:", {
-    quest_id,
-    quest_types,
-    discord_username,
-    twitter_username,
-    user_status,
-    short_answer,
-    submission_link,
-    tweet_post_link,
-    reply_submission_link,
-    retweet_submission_link
-  });
-
   // 🛑 Validate required fields before inserting
   if (
-    !quest_id || // ✅ Ensure quest_id is always present
     (quest_types === 3 && (!discord_username || !twitter_username || !user_status)) ||  // Onboarding requires all 3 fields
     (quest_types === 1 && !discord_username) ||  // Discord quests require Discord username
     (quest_types === 2 && !twitter_username)    // Twitter quests require Twitter username
@@ -94,20 +71,14 @@ export default async function handler(req, res) {
 
     console.log(`🔍 Inserting into table: ${pendingTable}`);
 
-    // 🔍 **Check if the user has already completed this specific quest**
-    let checkQuery = supabase.from(pendingTable).select('id').eq('quest_id', quest_id);
-
-    // ✅ Dynamically check based on the quest type and username
-    if (quest_types === 1 && discord_username) {
-      checkQuery = checkQuery.eq('discord_username', discord_username);
-    } else if (quest_types === 2 && twitter_username) {
-      checkQuery = checkQuery.eq('twitter_username', twitter_username);
-    } else if (quest_types === 3 && discord_username && twitter_username) {
-      checkQuery = checkQuery
-        .or(`discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`);
-    }
-
-    const { data: existingQuest, error: checkError } = await checkQuery.maybeSingle();
+    // 🔍 **Check if the user has already completed this quest in accepted quests**
+    const { data: existingQuest, error: checkError } = await supabase
+      .from(pendingTable)  // ✅ Now checking in the correct pending table
+      .select('id')
+      .or(
+        `discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`
+      )
+      .maybeSingle();
 
     if (checkError) {
       throw new Error(`Supabase Check Error: ${checkError.message}`);
@@ -127,7 +98,6 @@ export default async function handler(req, res) {
       tweet_post_link,
       reply_submission_link,
       retweet_submission_link,
-      quest_id, // ✅ Include quest_id
       status: false, // Default as pending
       submitted_at: new Date(),
     };
@@ -145,7 +115,6 @@ export default async function handler(req, res) {
       throw new Error(error.message);
     }
 
-    res.setHeader('Access-Control-Allow-Origin', 'https://jupcatdemy.com');
     res.status(200).json({ message: '✅ Submission received!', data });
   } catch (error) {
     console.error("❌ Error occurred:", error);
