@@ -3,7 +3,7 @@
   "builds": [
     {
       "src": "pages/api/submit.js",
-	    "src": "pages/api/check-submission.js",
+      "src": "pages/api/check-submission.js",
       "use": "@vercel/node"
     }
   ],
