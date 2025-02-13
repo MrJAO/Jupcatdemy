@@ -1,31 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
-import Cors from 'cors';
-
-// ✅ Initialize CORS middleware
-const cors = Cors({
-  methods: ['GET'],
-  origin: 'https://jupcatdemy.com',
-});
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// ✅ Helper function to run CORS middleware
-function runMiddleware(req, res, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      return resolve(result);
-    });
-  });
-}
-
 export default async function handler(req, res) {
-  await runMiddleware(req, res, cors);
+  // ✅ Add CORS Headers (Fixes your issue)
+  res.setHeader("Access-Control-Allow-Origin", "https://jupcatdemy.com");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // ✅ Handle CORS Preflight Request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method Not Allowed' });
