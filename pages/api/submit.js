@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import Cors from 'cors';
 
-// ✅ Initialize CORS middleware a
+// ✅ Initialize CORS middleware
 const cors = Cors({
   methods: ['GET', 'POST', 'OPTIONS'],
   origin: 'https://jupcatdemy.com',
@@ -36,28 +36,31 @@ export default async function handler(req, res) {
   }
 
   console.log("📥 Received Data:", req.body);
+  const { quest_types, submissionData } = req.body;
   const { quest_id, quest_types, submissionData } = req.body; // ✅ Extract quest_id correctly
 
+  // ✅ Extract required fields including quest_id
   // ✅ Extract required fields
   const discord_username = submissionData?.discord_username || null;
   const twitter_username = submissionData?.twitter_username || null;
   const user_status = submissionData?.user_status || null;
-  const short_answer = submissionData?.short_answer || null;
-  const submission_link = submissionData?.submission_link || null;
+@@ -47,9 +47,9 @@
   const tweet_post_link = submissionData?.tweet_post_link || null;
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
+  const quest_id = submissionData?.quest_id || null; // ✅ Added quest_id
 
   console.log("🔹 Extracted Data:", {
     quest_id,
     quest_types,
     discord_username,
     twitter_username,
-    user_status,
-    short_answer,
+@@ -58,89 +58,88 @@
     submission_link,
     tweet_post_link,
     reply_submission_link,
+    retweet_submission_link,
+    quest_id
     retweet_submission_link
   });
 
