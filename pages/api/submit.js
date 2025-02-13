@@ -72,13 +72,18 @@ export default async function handler(req, res) {
     console.log(`🔍 Inserting into table: ${pendingTable}`);
 
     // 🔍 **Check if the user has already completed this quest in accepted quests**
-    const { data: existingQuest, error: checkError } = await supabase
-      .from(pendingTable)  // ✅ Now checking in the correct pending table
-      .select('id')
-      .or(
-        `discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`
-      )
-      .maybeSingle();
+    let checkQuery = supabase.from(pendingTable).select('id');
+
+    // ✅ Dynamically check only relevant fields
+    if (quest_types === 1 && discord_username) {
+      checkQuery = checkQuery.eq('discord_username', discord_username);
+    } else if (quest_types === 2 && twitter_username) {
+      checkQuery = checkQuery.eq('twitter_username', twitter_username);
+    } else if (quest_types === 3 && discord_username && twitter_username) {
+      checkQuery = checkQuery.or(`discord_username.eq.${discord_username},twitter_username.eq.${twitter_username}`);
+    }
+
+    const { data: existingQuest, error: checkError } = await checkQuery.maybeSingle();
 
     if (checkError) {
       throw new Error(`Supabase Check Error: ${checkError.message}`);
