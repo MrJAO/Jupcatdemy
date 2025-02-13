@@ -1,0 +1,101 @@
+[33mcommit 4f8e46ac039683d52e0567bf6a821b158ac92dbe[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Mr. JAO <opriljoshua@gmail.com>
+Date:   Thu Feb 6 18:32:33 2025 +0800
+
+    Update .gitignore and remove node_modules from tracking
+
+[33mcommit 72baa080cbae23af809676afe9d1b26ac32d773c[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 18:21:18 2025 +0800
+
+    Update .gitignore
+
+[33mcommit bc11805751f89d37b1bb2b262e032fb72cb0df4e[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:59:10 2025 +0800
+
+    Update submit.js
+
+[33mcommit 01060f281f11d0024e2f0e6f66bf1fdb0ad84590[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:53:37 2025 +0800
+
+    Update .gitignore
+
+[33mcommit 087a2279d315817c651302655dfec8607deaa079[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:53:06 2025 +0800
+
+    Delete node modules directory
+
+[33mcommit f0ba199ea831cde039a6162bc067233e462d104a[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:51:39 2025 +0800
+
+    Delete .env.local
+
+[33mcommit b89c581f17d8b4441d8f2632c86cc2ee0b59f8aa[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:50:23 2025 +0800
+
+    Add files via upload
+
+[33mcommit f49e3fa1f6b7ff11f02d973073646c71fba22a82[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:49:53 2025 +0800
+
+    Create text.txt
+
+[33mcommit 02118387b73ac31a02c2aa3e84f81c22f6c597f2[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:47:46 2025 +0800
+
+    Create text.txt
+
+[33mcommit 1df9a3c92a671d95e2c8674acf1c31bea87cf492[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:46:41 2025 +0800
+
+    Update vercel.json
+
+[33mcommit 49f9c209f4259897021647fcad4ab362592758a5[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:44:35 2025 +0800
+
+    Add files via upload
+
+[33mcommit 8663e49618060e9bdbe9a4ca3be2844382a349c1[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:44:02 2025 +0800
+
+    Create project.json
+
+[33mcommit e0508774829b590a21e57a87e96dc5f2322f4c87[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:42:40 2025 +0800
+
+    Update .gitignore
+
+[33mcommit 2b8d8c5e965ecbf8cc50cf05cc78d1f0599bceb0[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:40:04 2025 +0800
+
+    Add files via upload
+
+[33mcommit 56ef2d3b7c2c54125356ca99eefdded7ccc91c68[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:39:10 2025 +0800
+
+    Delete pages/api/submit.js
+
+[33mcommit 4cdf47114384907d4e06a3fa284c7840be9743c4[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:38:21 2025 +0800
+
+    Create submit.js
+
+[33mcommit 7cdb82681c67697d3810f81d7b863182d3d88c98[m
+Author: Mr. JAO <39844929+MrJAO@users.noreply.github.com>
+Date:   Thu Feb 6 17:37:39 2025 +0800
+
+    Add files via upload
