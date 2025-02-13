@@ -36,9 +36,9 @@ export default async function handler(req, res) {
   }
 
   console.log("📥 Received Data:", req.body);
-  const { quest_types, submissionData } = req.body;
+  const { quest_id, quest_types, submissionData } = req.body; // ✅ Extract quest_id correctly
 
-  // ✅ Extract required fields including quest_id
+  // ✅ Extract required fields
   const discord_username = submissionData?.discord_username || null;
   const twitter_username = submissionData?.twitter_username || null;
   const user_status = submissionData?.user_status || null;
@@ -47,9 +47,9 @@ export default async function handler(req, res) {
   const tweet_post_link = submissionData?.tweet_post_link || null;
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
-  const quest_id = submissionData?.quest_id || null; // ✅ Added quest_id
 
   console.log("🔹 Extracted Data:", {
+    quest_id,
     quest_types,
     discord_username,
     twitter_username,
@@ -58,8 +58,7 @@ export default async function handler(req, res) {
     submission_link,
     tweet_post_link,
     reply_submission_link,
-    retweet_submission_link,
-    quest_id
+    retweet_submission_link
   });
 
   // 🛑 Validate required fields before inserting
