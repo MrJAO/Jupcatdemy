@@ -35,6 +35,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
+  console.log("📥 Received Data:", req.body);
   const { quest_types, submissionData } = req.body;
 
   // ✅ Updated extraction to match frontend data
@@ -46,6 +47,18 @@ export default async function handler(req, res) {
   const tweet_post_link = submissionData?.tweet_post_link || null;
   const reply_submission_link = submissionData?.reply_submission_link || null;
   const retweet_submission_link = submissionData?.retweet_submission_link || null;
+
+  console.log("🔹 Extracted Data:", {
+    quest_types,
+    discord_username,
+    twitter_username,
+    user_status,
+    short_answer,
+    submission_link,
+    tweet_post_link,
+    reply_submission_link,
+    retweet_submission_link
+  });
 
   // 🛑 Validate required fields before inserting
   if (
