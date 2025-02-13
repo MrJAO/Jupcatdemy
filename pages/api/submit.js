@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import Cors from 'cors';
 
-// ✅ Initialize CORS middleware
+// ✅ Initialize CORS middleware a
 const cors = Cors({
   methods: ['GET', 'POST', 'OPTIONS'],
   origin: 'https://jupcatdemy.com',
