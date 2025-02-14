@@ -64,7 +64,7 @@ export default async function handler(req, res) {
   // 🛑 Validate required fields before inserting
   if (
     !quest_id || // ✅ Ensure quest_id is always present
-    (quest_types === 3 && (!discord_username || !twitter_username || // Onboarding requires all 3 fields
+    (quest_types === 3 && (!discord_username || !twitter_username)) || // Onboarding requires all 3 fields
     (quest_types === 1 && !discord_username) ||  // Discord quests require Discord username
     (quest_types === 2 && !twitter_username)    // Twitter quests require Twitter username
   ) {
